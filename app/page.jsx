@@ -19,7 +19,7 @@ function HomePage() {
    generateText();
   }, [wordCount]);
   function generateText() {
-     const arr = generate({ maxLength:5, exactly: wordCount });
+     const arr = generate({minLength:2, maxLength:5, exactly: wordCount });
     let string = ""; 
     arr.forEach((item,index) => {
       if(index!=arr.length-1){
@@ -75,6 +75,7 @@ useEffect(() => {
       
       if (typedText.length >= targetText.length && event.key !== "Backspace") {
       //  generateText();
+      
       router.push("/results");
         return;
       }
@@ -106,9 +107,9 @@ useEffect(() => {
 
         // Calculate WPM
         const elapsedTime = (Date.now() - startTime) / 60000; 
-        const wordsTyped = newTypedText.length / 5;
+        const wordsTyped = newTypedText.length / 4;
         const rawWpm = Math.round(wordsTyped / elapsedTime);
-        const netWpmValue = Math.max(0, Math.round(rawWpm - ((errors/2) / elapsedTime)));
+        const netWpmValue = Math.max(0, Math.round(rawWpm - ((errors/4) / elapsedTime)));
         
         setWpm(rawWpm);
         setNetWpm(netWpmValue);

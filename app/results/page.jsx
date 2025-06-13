@@ -1,9 +1,10 @@
 "use client";
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAppContext } from '../context/ContextProvider';
 import { useRouter } from 'next/navigation';
 import Navbar from '../component/Navbar';
 import { Trophy, BarChart2, ArrowLeft, Clock, Target } from 'lucide-react';
+import axios from 'axios';
 
 function ShowResults() {
   const { wpm, netWpm, wordCount } = useAppContext();
@@ -51,7 +52,38 @@ function ShowResults() {
   };
 
   const accuracy = Math.max(0, Math.min(100, Math.round((netWpm / (wpm || 1)) * 100)));
+  const hasSent = useRef(false); // <-- flag to track sending
 
+  useEffect(() => {
+    if (!hasSent.current) {
+      hasSent.current = true;
+      sendData();
+      
+    }
+  }, []);
+const sendData = async ()=>{
+  try{
+     const data = await axios.post('/api/users/sendData', {
+      wpm: wpm,
+      netWpm: netWpm,
+      accuracy: accuracy,
+      wordCount: wordCount,
+      typeOfTest: "WordBased"
+    })
+
+    if(data.status === 200){
+      console.log("Data sent successfully");
+    }
+    // alert("Done");
+
+  }
+  catch(error){
+    console.error("Error sending data:", error);
+    alert("An error occurred while sending your results. Please try again later.");
+  }
+   
+
+}
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center">
       <Navbar />
