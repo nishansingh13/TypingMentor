@@ -7,24 +7,29 @@ import React, { useState } from 'react'
 function Others() {
     const router = useRouter();
     const [loading,setLoading] = useState(false);
-    const logout = async ()=>{
-      try{
-      const res = await axios.post('/api/users/logout');
-      if(res.status === 200){
-        router.push('/');
-      } else {
-        console.error('Failed to log out:', res.statusText);
+    
+    const logout = async () => {
+      setLoading(true); // Show loading state
+      try {
+        const res = await axios.post('/api/users/logout');
+        if (res.status === 200) {
+          // Redirect to login page instead of home
+          window.location.href = '/account/login'; // Force full page reload
+          // Don't use router.push here as it can cause race conditions
+        } else {
+          console.error('Failed to log out:', res.statusText);
+          alert('An error occurred while logging out. Please try again later.');
+        }
+      } catch (err) {
+        console.error('Error during logout:', err);
         alert('An error occurred while logging out. Please try again later.');
+      } finally {
+        setLoading(false);
       }
-    }catch(err){
-      console.error('Error during logout:', err);
-      alert('An error occurred while logging out. Please try again later.');
-    }finally {
-      // Optionally, you can perform any cleanup or state reset here
     }
-  }
-  return (
-  <div className="flex gap-4 mt-4">
+  
+    return (
+      <div className="flex gap-4 mt-4">
           <button 
            onClick={() => router.push('/')}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-lg shadow-md transition-colors"
@@ -34,15 +39,23 @@ function Others() {
           </button>
           
           <button 
-           onClick={()=>logout()}
-          
-            className= "flex cursor-pointer items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-colors"
-          >
-            <LogOut className="h-5 w-5" />
-            Sign Out
-          </button>
-        </div>
-  )
+          onClick={logout}
+          disabled={loading}
+          className={`flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg shadow-md transition-colors ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        >
+          {loading ? (
+            <>
+              <span className="animate-pulse">Logging out...</span>
+            </>
+          ) : (
+            <>
+              <LogOut className="h-5 w-5" />
+              Sign Out
+            </>
+          )}
+        </button>
+      </div>
+    )
 }
 
 export default Others
