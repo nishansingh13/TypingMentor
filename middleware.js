@@ -12,5 +12,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/account"], // This will apply middleware to /account and any nested route
+  matcher: ["/account"], 
 };

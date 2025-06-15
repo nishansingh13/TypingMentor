@@ -12,15 +12,22 @@ import axios from 'axios';
 
 function Account() {
   const {formData, setFormData} = useAppContext();
-  const {user,email} = formData;
+  const [averageWPM, setAverageWPM] = useState(0);
+  const [highestWPM, setHighestWPM] = useState(0);
   const [data,setData] = useState();
   const [isLoading, setIsLoading] = useState(true);
+  const [results, setResults] = useState([]);
+  const {selectType,setSelectType,selectedMode,setSelectedMode} = useAppContext();
   
   useEffect(()=>{
     getUser();
-    getResults();
+    getUserResults();
     
   },[])
+  useEffect(() => {
+    getUserResults();
+  }
+  , [selectType,selectedMode]);
   
   const getUser = async () => {
     setIsLoading(true);
@@ -28,6 +35,7 @@ function Account() {
       const response = await axios.get('/api/users/getuser');
       if (response.status === 200) {
         const userData = response.data[0];
+      
         setData(userData);
     
       } else {
@@ -40,13 +48,43 @@ function Account() {
       setIsLoading(false);
     }
   };
-  const getResults = async () => {
+  const getUserResults = async () => {
     try {
-      const response = await axios.get('/api/users/getResults');
+      const response = await axios.get('/api/users/getUserResults');
       if (response.status === 200) {
         const resultsData = response.data;
-        console.log('Results Data:', resultsData);
         
+        const filteredResults = resultsData.filter((result) => {
+          if (result.typeOfTest === 'WordBased' && selectType != 'All') {
+          
+            return result.wordCount == selectType;
+          } else if (result.typeOfTest === 'TimeBased') {
+            return result.timeCount == selectType;
+          }
+          return true;
+        });
+        
+        setResults(filteredResults);
+        
+      
+  
+        let totalWPM = 0;
+        let maxWPM = 0;
+      
+       
+        filteredResults.forEach((result) => {
+          totalWPM += result.netWpm;
+          if (result.netWpm > maxWPM) {
+            maxWPM = result.netWpm;
+          }
+        });
+       
+  
+        setAverageWPM(filteredResults.length > 0 ? totalWPM / filteredResults.length : 0);
+        setHighestWPM(maxWPM);
+  
+    
+       
       } else {
         console.error('Failed to fetch results data:', response.statusText);
       }
@@ -54,21 +92,22 @@ function Account() {
       console.error('Error fetching results data:', error);
       alert('An error occurred while fetching results data. Please try again later.');
     }
-  }
+  };
+  
+  
+
+  
 
 
   const userData = {
     username: data ? data.username : "not found",
     email:data ? data.email : "not found",
     joinDate:data ? new Date(data.createdAt).toLocaleDateString() : "not found",
-    testsCompleted: 42,
-    averageWPM: 65,
-    highestWPM: 85,
-    recentTests: [
-      { date: "2023-10-15", wpm: 62, accuracy: 92 },
-      { date: "2023-10-14", wpm: 68, accuracy: 95 },
-      { date: "2023-10-12", wpm: 71, accuracy: 89 }
-    ]
+    testsCompleted: results.length,
+    averageWPM: averageWPM.toFixed(0),
+    highestWPM: highestWPM,
+    recentTests: [...results].reverse()
+
   };
 
   return (
@@ -89,10 +128,10 @@ function Account() {
             </div>
             
             {/* Profile Card */}
-            <ProfileCard userData={userData} />
+            <ProfileCard userData={userData} results={results} />
             
             {/* Recent Tests */}
-            <RecentTasks userData={userData} />
+            <RecentTasks userData={userData}  />
             
             {/* Settings */}
             <AccountSettings userData={userData} />

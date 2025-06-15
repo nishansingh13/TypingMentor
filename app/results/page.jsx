@@ -7,9 +7,10 @@ import { Trophy, BarChart2, ArrowLeft, Clock, Target } from 'lucide-react';
 import axios from 'axios';
 
 function ShowResults() {
-  const { wpm, netWpm, wordCount } = useAppContext();
+  const { wpm, netWpm, wordCount,timeCount } = useAppContext();
   const router = useRouter();
-  
+  const {selectedMode} = useAppContext();
+  const typeOfTest = selectedMode === 'words' ? 'WordBased' : 'TimeBased';
   useEffect(() => {
     let tabPressed = false;
   
@@ -63,18 +64,26 @@ function ShowResults() {
   }, []);
 const sendData = async ()=>{
   try{
+    if(selectedMode === 'words'){
      const data = await axios.post('/api/users/sendData', {
       wpm: wpm,
       netWpm: netWpm,
       accuracy: accuracy,
       wordCount: wordCount,
-      typeOfTest: "WordBased"
+      typeOfTest: typeOfTest
+    })
+  }
+  else {
+    const data = await axios.post('/api/users/sendData', {
+      wpm: wpm,
+      netWpm: netWpm,
+      accuracy: accuracy,
+      timeCount: timeCount,
+      typeOfTest: typeOfTest
     })
 
-    if(data.status === 200){
-      console.log("Data sent successfully");
-    }
-    // alert("Done");
+  }
+  
 
   }
   catch(error){
@@ -134,8 +143,8 @@ const sendData = async ()=>{
             <div className="flex items-center">
               <Clock className="h-5 w-5 text-gray-400 mr-3" />
               <div>
-                <div className="text-gray-400 text-sm">Word Count</div>
-                <div className="text-lg font-medium">{wordCount} words</div>
+                <div className="text-gray-400 text-sm">{typeOfTest=="WordBased"?"Word Count":"Time"}</div>
+                <div className="text-lg font-medium">{typeOfTest=="WordBased"?wordCount+" words":timeCount+" s"}</div>
               </div>
             </div>
           </div>

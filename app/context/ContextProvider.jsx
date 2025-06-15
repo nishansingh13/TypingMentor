@@ -18,13 +18,21 @@ function ContextProvider({ children }) {
       username: '',
       confirmPassword: ''
     });
+     const [selectedMode, setSelectedMode] = useState('words')
+      const [selectType, setSelectType] = useState('All')
+      const [timeCount, setTimeCount] = useState('15');
+    
+
   return (
     <AppContext.Provider value={{
         wordCount,
         setWordCount,
         wpm, setWpm,
         netWpm, setNetWpm,
-        formData, setFormData
+        formData, setFormData,
+        selectedMode, setSelectedMode,
+        selectType, setSelectType,
+        timeCount, setTimeCount
      }}>
       {children}
     </AppContext.Provider>

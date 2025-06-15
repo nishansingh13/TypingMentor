@@ -13,11 +13,78 @@ function HomePage() {
   const [startTime, setStartTime] = useState(null);
   const [indexes, setIndexes] = useState([]);
   const [errors, setErrors] = useState(0);
-  const { wordCount,wpm,setWpm,netWpm,setNetWpm } = useAppContext();
+  const {selectedMode, setSelectedMode} = useAppContext();
+  const [timeLeft, setTimeLeft] = useState(null);
+  const { wordCount,wpm,setWpm,netWpm,setNetWpm,timeCount,setTimeCount } = useAppContext();
   
+  // Reset and initialize when coming back to this page
   useEffect(() => {
-   generateText();
-  }, [wordCount]);
+    // Reset all states on component mount or when returning to this page
+    setTypedText("");
+    setStartTime(null);
+    setErrors(0);
+    setIndexes([]);
+    setWpm(0);
+    setNetWpm(0);
+    setTimeLeft(null);
+    
+    // Generate appropriate text based on current mode
+    if (selectedMode === "words") {
+      generateText();
+    } else if (selectedMode === "time") {
+      generateTimeText();
+    }
+  }, []);  // Empty dependency array means this runs once on mount
+
+  // Update text when word count changes
+  useEffect(() => {
+    if (selectedMode === "words") {
+      generateText();
+    }
+  }, [wordCount, selectedMode]);
+  
+ 
+  useEffect(() => {
+    if (selectedMode === "time") {
+      generateTimeText();
+    }
+  }, [timeCount, selectedMode]);
+  
+
+  useEffect(() => {
+    if (selectedMode === "words") {
+      generateText();
+    } else if (selectedMode === "time") {
+      generateTimeText();
+    }
+  }, [selectedMode]);
+
+  const generateTimeText = () => {
+    const count = (() => {
+      if (timeCount === 15) return 30;
+      else if (timeCount === 30) return 45;
+      else if (timeCount === 60) return 70;
+      else if (timeCount === 120) return 130;
+      else return 10; 
+    })();
+    
+    const arr = generate({minLength:2, maxLength:5, exactly: count });
+    let string = "";
+    arr.forEach((item, index) => {
+      if (index !== arr.length - 1) {
+        string += item + " ";
+      } else {
+        string += item;
+      }
+    });
+    setTypedText("");
+    setStartTime(null);
+    setErrors(0);
+    setIndexes([]);
+    setWpm(0);
+    setNetWpm(0);
+    setTargettext(string);
+  };
   function generateText() {
      const arr = generate({minLength:2, maxLength:5, exactly: wordCount });
     let string = ""; 
@@ -42,17 +109,31 @@ useEffect(() => {
 
   const handleKeyDown = (event) => {
     if (event.key === "Tab") {
-      event.preventDefault(); 
+      event.preventDefault();
       tabPressed = true;
     }
-
-    if (event.key === "Enter" && tabPressed) {
-      event.preventDefault(); // prevent form submits or default behavior
-      generateText(); 
-    }
-
   
+    if (event.key === "Enter" && tabPressed) {
+      event.preventDefault();
+  
+      // Reset all typing-related states
+      setTypedText("");
+      setStartTime(null);
+      setErrors(0);
+      setIndexes([]);
+      setWpm(0);
+      setNetWpm(0);
+      setTimeLeft(null); // Important for time mode
+  
+      if (selectedMode === "words") {
+        generateText();
+      } else if (selectedMode === "time") {
+        setTimeLeft(timeCount); // Reset the countdown
+        generateTimeText();
+      }
+    }
   };
+  
 
   const handleKeyUp = (event) => {
     if (event.key === "Tab") {
@@ -67,16 +148,37 @@ useEffect(() => {
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   };
-}, [generateText]);
+}, [generateText, generateTimeText, selectedMode, timeCount, wordCount]); // Add all dependencies
 
+
+  // Timer effect - countdown when in time mode
+  useEffect(() => {
+    let timerId;
+    
+    // Only run if we're in time mode and typing has started
+    if (selectedMode === 'time' && startTime && timeLeft > 0) {
+      timerId = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    }
+    
+    return () => {
+      if (timerId) clearInterval(timerId);
+    };
+  }, [selectedMode, startTime, timeLeft]);
+
+  // Handle timer reaching zero
+  useEffect(() => {
+    if (timeLeft === 0) {
+      router.push("/results");
+    }
+  }, [timeLeft, router]);
 
   useEffect(() => {
     const handleKeyPress = (event) => {
       
       if (typedText.length >= targetText.length && event.key !== "Backspace") {
-      //  generateText();
-      
-      router.push("/results");
+        router.push("/results");
         return;
       }
 
@@ -93,6 +195,10 @@ useEffect(() => {
       if (event.key.length === 1) {
         if (!startTime) {
           setStartTime(Date.now());
+          // Initialize timer when starting to type in time mode
+          if (selectedMode === 'time') {
+            setTimeLeft(timeCount);
+          }
         }
 
         const newTypedText = typedText + event.key;
@@ -125,13 +231,20 @@ useEffect(() => {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [typedText, startTime, errors, targetText, indexes]);
+  }, [typedText, startTime, errors, targetText, indexes, selectedMode, timeCount]);
 
   return (
    <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center">
       <Navbar />
       <div className="container mx-auto px-4 py-8 flex flex-col items-center gap-8">
-        <Options/>
+        <Options selectedMode={selectedMode} setSelectedMode={setSelectedMode}/>
+        
+        {/* Display timer when in time mode */}
+        {selectedMode === 'time' && (
+          <div className="text-xl bg-gray-800 px-6 py-3 rounded-lg shadow-md border border-gray-700">
+            <span className="font-semibold text-yellow-400">Time left:</span> {timeLeft !== null ? timeLeft : timeCount} seconds
+          </div>
+        )}
         
         <div className="text-2xl bg-gray-800 p-6 rounded-lg w-full max-w-3xl shadow-lg border border-gray-700">
           {targetText.split("").map((char, index) => {
@@ -159,14 +272,12 @@ useEffect(() => {
           </div>
           <div className="bg-gray-800 px-6 py-3 rounded-lg shadow-md border border-gray-700">
             <span className="font-semibold text-emerald-400">Net WPM:</span> {netWpm}
-            
           </div>
-         
         </div>
       </div>
-         <div className="text-gray-500 text-sm mt-8">
-          Press Tab+Enter to restart the test
-        </div>
+      <div className="text-gray-500 text-sm mt-8">
+        Press Tab+Enter to restart the test
+      </div>
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
-
-export const authenticate = async (request) => {
+import { cookies } from "next/headers";
+export const authenticate = async () => {
     try {
-        const token = request.headers.get("Authorization");
+        const cookieStore = await cookies();
+        const token = cookieStore.get('token')?.value;
+        console.log("Token:", token);
         
         if (!token) {
             return NextResponse.json(
@@ -12,16 +14,16 @@ export const authenticate = async (request) => {
             );
         }
 
-        const tokenParts = token.split(" ");
-        if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+        // Remove the Bearer token format check
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            return decoded;
+        } catch (verifyError) {
             return NextResponse.json(
-                { error: "Invalid token format" },
+                { error: "Invalid token" },
                 { status: 401 }
             );
         }
-
-        const decoded = jwt.verify(tokenParts[1], process.env.JWT_SECRET);
-        return decoded;
     } catch (error) {
         return NextResponse.json(
             { error: "Invalid token" },

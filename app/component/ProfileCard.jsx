@@ -1,7 +1,11 @@
 import { Edit2, User } from 'lucide-react'
-import React from 'react'
+import React, { use, useEffect, useState } from 'react'
+import { useAppContext } from '../context/ContextProvider';
 
-function ProfileCard({ userData }) {
+function ProfileCard({ userData ,results}) {
+  const {selectType,setSelectType,selectedMode,setSelectedMode} = useAppContext();
+
+ 
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg w-full max-w-3xl">
   
@@ -19,11 +23,65 @@ function ProfileCard({ userData }) {
         </button>
       </div>
       
-      <div className="flex justify-center mb-4 text-xs">
-        <button className="px-3 py-1.5 bg-emerald-600 text-white rounded-l-md hover:bg-emerald-700 transition-colors">10 words</button>
-        <button className="px-3 py-1.5 bg-gray-600 text-gray-200 hover:bg-gray-500 transition-colors">20 words</button>
-        <button className="px-3 py-1.5 bg-gray-600 text-gray-200 hover:bg-gray-500 transition-colors">50 words</button>
-        <button className="px-3 py-1.5 bg-gray-600 text-gray-200 hover:bg-gray-500 rounded-r-md transition-colors">All</button>
+      <div className="mb-6">
+       
+        <div className="flex justify-center mb-4">
+          <div className="inline-flex bg-gray-700 rounded-md overflow-hidden">
+            <button 
+              className={`px-6 py-2 text-sm font-medium transition-colors ${selectedMode === 'words' ? 'bg-emerald-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
+              onClick={() => setSelectedMode('words')}
+            >
+              Words
+            </button>
+            <button 
+              className={`px-6 py-2 text-sm font-medium transition-colors ${selectedMode === 'time' ? 'bg-emerald-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
+              onClick={() => setSelectedMode('time')}
+            >
+              Time
+            </button>
+          </div>
+        </div>
+        
+      
+        <div className="flex justify-center">
+        {selectedMode === 'words' && (
+                  <div className="inline-flex rounded-md overflow-hidden shadow-sm">
+                    {['All','10', '25', '50' ].map((val) => (
+                      <button
+
+                        key={val}
+                        onClick={() => setSelectType(val)}
+                        className={`px-4 py-2 text-sm transition-colors cursor-pointer ${
+                          selectType === val
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                        }`}
+                      >
+                        {val}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+          
+          {selectedMode === 'time' && (
+            <div className="inline-flex rounded-md overflow-hidden shadow-sm">
+            {['15','30','60','90'].map((val) => (
+              <button
+                key={val}
+                onClick={() => setSelectType(val)}
+                className={`px-4 py-2 text-sm transition-colors ${
+                  selectType === val
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                }`}
+              >
+                {val}
+              </button>
+            ))}
+          </div>
+          )}
+        </div>
       </div>
       
       <div className="grid md:grid-cols-3 gap-4 mb-4">

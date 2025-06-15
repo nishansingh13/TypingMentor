@@ -1,10 +1,28 @@
-"use client"
+// "use client"
+import axios from 'axios';
 import { ArrowLeft, LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react'
 
 function Others() {
     const router = useRouter();
+    const [loading,setLoading] = useState(false);
+    const logout = async ()=>{
+      try{
+      const res = await axios.post('/api/users/logout');
+      if(res.status === 200){
+        router.push('/');
+      } else {
+        console.error('Failed to log out:', res.statusText);
+        alert('An error occurred while logging out. Please try again later.');
+      }
+    }catch(err){
+      console.error('Error during logout:', err);
+      alert('An error occurred while logging out. Please try again later.');
+    }finally {
+      // Optionally, you can perform any cleanup or state reset here
+    }
+  }
   return (
   <div className="flex gap-4 mt-4">
           <button 
@@ -16,7 +34,9 @@ function Others() {
           </button>
           
           <button 
-            className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-colors"
+           onClick={()=>logout()}
+          
+            className= "flex cursor-pointer items-center gap-2 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-colors"
           >
             <LogOut className="h-5 w-5" />
             Sign Out

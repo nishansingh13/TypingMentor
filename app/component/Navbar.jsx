@@ -18,14 +18,13 @@ function Navbar() {
             <Keyboard className="h-5 w-5" />
             <span>Practice</span>
           </div>
-          <a href="#" className='flex items-center gap-2 text-gray-300 hover:text-emerald-400 transition-colors'>
+          <div 
+          onClick={() => router.push('/leaderboard')}
+          className='cursor-pointer flex items-center gap-2 text-gray-300 hover:text-emerald-400 transition-colors'>
             <BarChart3 className="h-5 w-5" />
             <span>Scoreboard</span>
-          </a>
-          <a href="#" className='flex items-center gap-2 text-gray-300 hover:text-emerald-400 transition-colors'>
-            <Settings className="h-5 w-5" />
-            <span>Settings</span>
-          </a>
+          </div>
+         
         </div>
       </div>
       

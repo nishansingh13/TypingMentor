@@ -94,11 +94,11 @@ export const loginUser = async (req) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email ,username: user.username},
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-
+    
     const response = NextResponse.json({
       message: "User logged in successfully",
       user: {

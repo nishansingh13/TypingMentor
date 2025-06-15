@@ -1,7 +1,10 @@
 import { Award, BarChart2 } from 'lucide-react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { useAppContext } from '../context/ContextProvider';
 
 function RecentTasks({userData}) {
+  const [showAll,setShowAll] = useState(false);
+  const {selectType} = useAppContext();
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg w-full max-w-3xl">
           <div className="flex items-center mb-4">
@@ -14,25 +17,41 @@ function RecentTasks({userData}) {
               <thead>
                 <tr className="border-b border-gray-700">
                   <th className="pb-2 text-gray-400">Date</th>
+                  <th className="pb-2 text-gray-400">NetWpm</th>
                   <th className="pb-2 text-gray-400">WPM</th>
                   <th className="pb-2 text-gray-400">Accuracy</th>
+                  {selectType === 'All' && (
+                    <th className="pb-2 text-gray-400">Type</th>
+                  )}
             
                 </tr>
               </thead>
               <tbody>
-                {userData.recentTests.map((test, index) => (
-                  <tr key={index} className="border-b border-gray-700">
-                    <td className="py-3">{test.date}</td>
-                    <td className="py-3 text-emerald-400 font-medium">{test.wpm}</td>
-                    <td className="py-3">{test.accuracy}%</td>
-                  </tr>
-                ))}
+              {userData.recentTests.length === 0 ? (
+                <tr>
+                  <td colSpan={selectType === 'All' ? 5 : 4} className="py-3 text-center text-emerald-500">No recent tests found</td>
+                </tr>
+              ) : null}
+
+            {(showAll ? userData.recentTests : userData.recentTests.slice(0, 4)).map((test, index) => (
+              <tr key={index} className="border-b border-gray-700">
+                <td className="py-3">{new Date(test.createdAt).toLocaleDateString()}</td>
+                <td className="py-3 text-emerald-400 font-medium">{test.netWpm}</td>
+                <td className="py-3 text-emerald-400 font-medium">{test.wpm}</td>
+                <td className="py-3">{test.accuracy}%</td>
+                {selectType === 'All' && (
+                  <td className="py-3">{test.typeOfTest === 'WordBased' ? test.wordCount + " Words" : "Time"}</td>
+                )}
+              </tr>
+            ))}
+
+
               </tbody>
             </table>
           </div>
           
-          <button className="mt-4 text-emerald-400 hover:text-emerald-300 text-sm flex items-center">
-            <span>View all tests</span>
+          <button className="mt-4 text-emerald-400 hover:text-emerald-300 text-sm flex items-center cursor-pointer  " onClick={() => setShowAll(!showAll)} >
+            <span>{!showAll?"View all tests":"Show Less"}</span>
             <Award className="h-4 w-4 ml-2" />
           </button>
         </div>
