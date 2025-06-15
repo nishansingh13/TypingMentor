@@ -15,7 +15,7 @@ export async function GET(req){
        const decoded = jwt.verify(token, process.env.JWT_SECRET);
        const id = decoded.id;
        const data = await Results.find({uid:id});
-       console.log('Results data:', data);
+     
        if (!data) {
            return new Response(JSON.stringify({ error: 'Results not found' }), { status: 404 });
        }

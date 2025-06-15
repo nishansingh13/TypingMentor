@@ -25,7 +25,7 @@ export const getUser = async (req) => {
         await connectDB();
         const cookieStore = await cookies();
         const tokenCookie=  cookieStore.get("token");
-     console.log("Token Cookie:", tokenCookie);
+     
           if (!tokenCookie) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

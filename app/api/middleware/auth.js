@@ -5,7 +5,7 @@ export const authenticate = async () => {
     try {
         const cookieStore = await cookies();
         const token = cookieStore.get('token')?.value;
-        console.log("Token:", token);
+      
         
         if (!token) {
             return NextResponse.json(

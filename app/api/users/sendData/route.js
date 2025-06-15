@@ -13,7 +13,7 @@ export async function POST(req) {
         }
         await connectDB();
         const auth = await authenticate();
-        console.log("Auth:", auth);
+       
         if(auth.error) {
             return auth; 
         }
@@ -28,7 +28,7 @@ export async function POST(req) {
         }
         const uid = auth.id;
         const username = auth.username;
-        console.log(username);
+       
         
         
         const result = new Results({
@@ -41,7 +41,7 @@ export async function POST(req) {
             uid,
             username
         })
-        console.log(result);
+       
           await result.save()
         return new Response (JSON.stringify({ message: "Data saved successfully" }), { status: 200 });
 

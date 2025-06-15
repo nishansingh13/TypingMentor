@@ -4,12 +4,12 @@ configDotenv();
 const MONGO_URI = process.env.MONGO_URI;
 export const connectDB = async()=>{
     if (mongoose.connection.readyState >= 1) {
-        console.log("✅ Using existing MongoDB connection");
+        console.log(" Using existing MongoDB connection");
         return;
       }
     
-      console.log("🔄 Connecting to MongoDB...");
+      console.log("Connecting to MongoDB...");
       await mongoose.connect(MONGO_URI);
-      console.log("✅ MongoDB Connected to:", mongoose.connection.name);
+      console.log("MongoDB Connected to:", mongoose.connection.name);
 }
 connectDB();
