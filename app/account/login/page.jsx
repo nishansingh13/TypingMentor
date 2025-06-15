@@ -5,18 +5,20 @@ import { Keyboard, Mail, Lock, User, ArrowRight, ChevronRight, Eye, EyeOff } fro
 import Navbar from '../../component/Navbar';
 import axios from 'axios';
 import { useAppContext } from '@/app/context/ContextProvider';
+import { toast, Toaster } from 'sonner';
 
 function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
   const {formData, setFormData} = useAppContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
+    setLoading(true);
     if (isLogin) {
       
       const response = await axios.post('/api/users/login', {
@@ -24,14 +26,15 @@ const handleSubmit = async (e) => {
         password: formData.password
       });
       if (response.status === 200) {
-        alert('Login successful!');
         window.location.href ='/';
+        toast.success("Login successful!");
+       
        
       }
     } else {
     
       if (formData.password !== formData.confirmPassword) {
-        alert('Passwords do not match!');
+        toast.error('Passwords do not match!');
         return;
       }
       const response = await axios.post('/api/users/register', {
@@ -40,7 +43,7 @@ const handleSubmit = async (e) => {
         password: formData.password
       });
       if (response.status === 200) {
-        alert('Sign up successful! Please log in.');
+        toast.success('Sign up successful! Please log in.');
         setIsLogin(true);
      
         setFormData({
@@ -52,12 +55,16 @@ const handleSubmit = async (e) => {
       }
     }
   } catch (error) {
+    setLoading(false);
     console.error('Error during authentication:', error);
     if (error.response && error.response.data) {
-      alert(error.response.data.error || 'An error occurred. Please try again.');
+      toast.error(error.response.data.error || 'An error occurred. Please try again.');
     } else {
-      alert('An unexpected error occurred. Please try again later.');
+      toast.error('An unexpected error occurred. Please try again later.');
     }
+  }
+  finally {
+    setLoading(false);
   }
 };
 const handleChange = (e) => {
@@ -79,6 +86,7 @@ const toggleConfirmPasswordVisibility = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center">
       <Navbar />
+      <Toaster position="top-right" richColors/>
       
       <div className="container mx-auto px-4 py-12 flex flex-col items-center justify-center flex-1">
         <div className="w-full max-w-md">
@@ -163,7 +171,12 @@ const toggleConfirmPasswordVisibility = () => {
                   </div>
                   <a href="#" className="text-sm text-emerald-400 hover:underline">Forgot password?</a>
                 </div>
-                
+                {loading ? (
+            <>
+              <button disabled className="animate-pulse w-full bg-emerald-800 text-white font-medium rounded-lg text-sm px-5 py-3 transition-colors flex items-center justify-center">Logging in...</button>
+            </>
+          ) : (
+            <>
                 <button 
                   type="submit" 
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm px-5 py-3 transition-colors flex items-center justify-center"
@@ -172,6 +185,9 @@ const toggleConfirmPasswordVisibility = () => {
                   <span>Sign In</span>
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </button>
+            </>
+          )}
+              
               </form>
             ) : (
               /* Sign Up Form */
@@ -271,15 +287,19 @@ const toggleConfirmPasswordVisibility = () => {
                   />
                   <label className="ml-2 text-sm text-gray-300">I agree to the <a href="#" className="text-emerald-400 hover:underline">Terms and Conditions</a></label>
                 </div>
+                {loading ? (
+            <>
+              <button disabled className="animate-pulse w-full bg-emerald-800 text-white font-medium rounded-lg text-sm px-5 py-3 transition-colors flex items-center justify-center">Creating your account...</button>
+            </>
+          ) :(<button 
+            type="submit" 
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm px-5 py-3 transition-colors flex items-center justify-center"
+            onClick={handleSubmit}
+          >
+            <span>Create Account</span>
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </button>)}
                 
-                <button 
-                  type="submit" 
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg text-sm px-5 py-3 transition-colors flex items-center justify-center"
-                  onClick={handleSubmit}
-                >
-                  <span>Create Account</span>
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </button>
               </form>
             )}
             

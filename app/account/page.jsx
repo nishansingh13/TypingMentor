@@ -9,6 +9,7 @@ import AccountSettings from '../component/AccountSettings';
 import Others from '../component/Others';
 import { useAppContext } from '../context/ContextProvider';
 import axios from 'axios';
+import { toast, Toaster } from 'sonner';
 
 function Account() {
   const {formData, setFormData} = useAppContext();
@@ -43,7 +44,7 @@ function Account() {
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      alert('An error occurred while fetching user data. Please try again later.');
+      toast.error('An error occurred while fetching user data. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +91,7 @@ function Account() {
       }
     } catch (error) {
       console.error('Error fetching results data:', error);
-      alert('An error occurred while fetching results data. Please try again later.');
+      toast.error('An error occurred while fetching results data. Please try again later.');
     }
   };
   
@@ -113,7 +114,7 @@ function Account() {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col items-center">
       <Navbar />
-      
+      <Toaster position="top-right" richColors/>
       <div className="container mx-auto px-4 py-12 flex flex-col items-center gap-8">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-64">
