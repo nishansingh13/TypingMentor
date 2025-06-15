@@ -25,7 +25,9 @@ const handleSubmit = async (e) => {
       });
       if (response.status === 200) {
         alert('Login successful!');
-        router.push('/account');
+        setTimeout(() => {
+          router.push('/account');
+        }, 300);
       }
     } else {
     
