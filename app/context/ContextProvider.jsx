@@ -20,7 +20,7 @@ function ContextProvider({ children }) {
     });
      const [selectedMode, setSelectedMode] = useState('words')
       const [selectType, setSelectType] = useState('All')
-      const [timeCount, setTimeCount] = useState('15');
+      const [timeCount, setTimeCount] = useState(15);
     
 
   return (

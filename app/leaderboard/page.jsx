@@ -32,30 +32,29 @@ function LeaderboardPage() {
           return result.typeOfTest === 'TimeBased' && result.timeCount == timeCount;
         }
       });
-      
   
-      // Map to store highest netWpm per user
       const userMaxMap = new Map();
   
       filteredResults.forEach((res) => {
-        const userId = res.uid; // or `res.user._id` depending on your structure
+        const userId = res.uid;
         if (!userMaxMap.has(userId) || res.netWpm > userMaxMap.get(userId).netWpm) {
-          userMaxMap.set(userId, res); // store the highest one
+          userMaxMap.set(userId, res);
         }
       });
   
-      // Convert map values to array
-      const topResultsPerUser = Array.from(userMaxMap.values());
+      const topResultsPerUser = Array.from(userMaxMap.values()).sort((a, b) => b.netWpm - a.netWpm);
   
       setLeaderboardData(topResultsPerUser.map((result, index) => ({
         id: result._id,
         rank: index + 1,
-        username: result.username ,
+        username: result.username,
         wpm: result.netWpm,
         accuracy: result.accuracy.toFixed(2),
-        level: (result.netWpm >= 120 ? 'Expert' :
-                result.netWpm >= 90 ? 'Advanced' :
-                result.netWpm >= 60 ? 'Intermediate' : 'Beginner'),
+        level: (
+          result.netWpm >= 120 ? 'Expert' :
+          result.netWpm >= 90 ? 'Advanced' :
+          result.netWpm >= 60 ? 'Intermediate' : 'Beginner'
+        ),
       })));
     } catch (error) {
       console.error("Error fetching leaderboard data:", error);
@@ -63,6 +62,7 @@ function LeaderboardPage() {
       setLoading(false);
     }
   };
+  
   
   useEffect(() =>{
     getResults();
