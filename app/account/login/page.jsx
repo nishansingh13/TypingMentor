@@ -25,9 +25,8 @@ const handleSubmit = async (e) => {
       });
       if (response.status === 200) {
         alert('Login successful!');
-        setTimeout(() => {
-          router.push('/account');
-        }, 300);
+        window.location.href ='/';
+       
       }
     } else {
     
