@@ -1,10 +1,23 @@
 import { Award, BarChart2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../context/ContextProvider';
+import RecentTasksSkeleton from './RecentTasksSkeleton';
 
 function RecentTasks({userData}) {
-  const [showAll,setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [loading, setLoading] = useState(true);
   const {selectType} = useAppContext();
+  
+  useEffect(() => {
+    if (userData && userData.recentTests) {
+      setLoading(false);
+    }
+  }, [userData]);
+  
+  if (loading || !userData || !userData.recentTests) {
+    return <RecentTasksSkeleton />;
+  }
+  
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg w-full max-w-3xl">
           <div className="flex items-center mb-4">

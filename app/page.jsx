@@ -6,6 +6,7 @@ import Options from "./component/Options";
 import { useAppContext } from "./context/ContextProvider";
 import { useRouter } from "next/navigation";
 
+
 function HomePage() {
   const router = useRouter();
   const [targetText, setTargettext] = useState("");

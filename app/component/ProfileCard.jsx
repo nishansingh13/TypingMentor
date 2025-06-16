@@ -1,10 +1,20 @@
 import { Edit2, User } from 'lucide-react'
 import React, { use, useEffect, useState } from 'react'
 import { useAppContext } from '../context/ContextProvider';
+import ProfileCardSkeleton from './ProfileCardSkeleton';
 
 function ProfileCard({ userData ,results}) {
   const {selectType,setSelectType,selectedMode,setSelectedMode} = useAppContext();
-
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (userData && userData.username) {
+      setLoading(false);
+    }
+  }, [userData]);
+  
+  if(userData.username=== undefined || loading) {
+    return <ProfileCardSkeleton />;
+  }
  
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg w-full max-w-3xl">
