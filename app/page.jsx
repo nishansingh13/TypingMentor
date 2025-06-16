@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 function HomePage() {
   const router = useRouter();
-  const [targetText, setTargettext] = useState("");
+  const [targetText, setTargettext] = useState("welcome to typingmentor lets start typing right away");
   const [typedText, setTypedText] = useState("");
   const [startTime, setStartTime] = useState(null);
   const [indexes, setIndexes] = useState([]);
