@@ -18,9 +18,9 @@ function HomePage() {
   const [timeLeft, setTimeLeft] = useState(null);
   const { wordCount,wpm,setWpm,netWpm,setNetWpm,timeCount,setTimeCount } = useAppContext();
   
-  // Reset and initialize when coming back to this page
+
   useEffect(() => {
-    // Reset all states on component mount or when returning to this page
+
     setTypedText("");
     setStartTime(null);
     setErrors(0);

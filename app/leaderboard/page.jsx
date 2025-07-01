@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import Navbar from '../component/Navbar';
 import { useAppContext } from '../context/ContextProvider';
 import axios from 'axios';
@@ -12,19 +12,16 @@ const Ranks = dynamic(() => import('../component/Ranks'), {
 });
 function LeaderboardPage() {
   const [leaderboardData, setLeaderboardData] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(true);
 
   const [selectedMode, setSelectedMode] = useState('words');
   const { wordCount, setWordCount,timeCount,setTimeCount } = useAppContext();
 
-    
-    const wordOptions = [10, 25, 50, 100];
-    const timeOptions = [15, 30, 60, 120];
-  useEffect(()=>{
-    getResults();
-  },[selectedMode,wordCount,timeCount])
-  const getResults = async () => {
-  
+  const wordOptions = [10, 25, 50, 100];
+  const timeOptions = [15, 30, 60, 120];
+
+  const getResults = useMemo(() => async () => {
+    setIsLoading(true);
     try {
       const result = await axios.get('/api/users/getResults');
       const resultsData = result.data.results;
@@ -62,13 +59,15 @@ function LeaderboardPage() {
       })));
     } catch (error) {
       console.error("Error fetching leaderboard data:", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
-  
-  
-  useEffect(() =>{
+  }, [selectedMode, wordCount, timeCount]);
+
+  useEffect(() => {
     getResults();
-  },[])
+  }, [getResults]);
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
       <Navbar/>
@@ -152,8 +151,7 @@ function LeaderboardPage() {
               <div className="col-span-2 text-center">Level</div>
             </div>
             
-            {/* Show "No data" message when leaderboard is empty */}
-          <Ranks leaderboardData={leaderboardData}/>
+            {isLoading ? <RanksSkeleton/> : <Ranks leaderboardData={leaderboardData}/>}
           </div>
         </div>
       

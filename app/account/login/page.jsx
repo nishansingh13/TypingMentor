@@ -17,10 +17,10 @@ function LoginPage() {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+  setLoading(true); // Move this to the very beginning
+  
   try {
-    setLoading(true);
     if (isLogin) {
-      
       const response = await axios.post('/api/users/login', {
         email: formData.email,
         password: formData.password
@@ -28,13 +28,11 @@ const handleSubmit = async (e) => {
       if (response.status === 200) {
         window.location.href ='/';
         toast.success("Login successful!");
-       
-       
       }
     } else {
-    
       if (formData.password !== formData.confirmPassword) {
         toast.error('Passwords do not match!');
+        setLoading(false); // Reset loading on validation error
         return;
       }
       const response = await axios.post('/api/users/register', {
@@ -45,7 +43,6 @@ const handleSubmit = async (e) => {
       if (response.status === 200) {
         toast.success('Sign up successful! Please log in.');
         setIsLogin(true);
-     
         setFormData({
           email: '',
           password: '',
@@ -55,15 +52,13 @@ const handleSubmit = async (e) => {
       }
     }
   } catch (error) {
-    setLoading(false);
     console.error('Error during authentication:', error);
     if (error.response && error.response.data) {
       toast.error(error.response.data.error || 'An error occurred. Please try again.');
     } else {
       toast.error('An unexpected error occurred. Please try again later.');
     }
-  }
-  finally {
+  } finally {
     setLoading(false);
   }
 };
